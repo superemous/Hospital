@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .form-section, .table-section {
+            width: 48%;
+        }
+        .form-section input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-section button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-section">
+        <h2>Add to Queue</h2>
+        <form id="queue-form">
+            <input type="text" name="text1" placeholder="Name" required>
+            <input type="text" name="text2" placeholder="Place" required>
+            <input type="text" name="text3" placeholder="phone" required>
+            <input type="number" name="number1" placeholder="Aadhar_NO" required>
+            <input type="number" name="number2" placeholder="Age" required>
+            <button type="submit">Add</button>
+        </form>
+    </div>
+    <div class="table-section">
+        <h2>Current Queue</h2>
+        <table id="queue-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Place</th>
+                    <th>phone</th>
+                    <th>Aadhar_NO</th>
+                    <th>Age</th>
+                </tr>
+            </thead>
+            <tbody>
+               
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const form = document.getElementById('queue-form');
+        const tableBody = document.querySelector('#queue-table tbody');
+    
+        // Function to fetch and display queue data
+        async function fetchQueueData() {
+            try {
+                const response = await fetch('/queue-data');
+                const data = await response.json();
+                tableBody.innerHTML = data.map(row => `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>${row.text1}</td>
+                        <td>${row.text2}</td>
+                        <td>${row.text3}</td>
+                        <td>${row.number1}</td>
+                        <td>${row.number2}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error fetching queue data:', err);
+            }
+        }
+    
+       
+        function startPolling() {
+            setInterval(fetchQueueData, 2000); 
+        }
+    
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = {
+                text1: formData.get('text1'),
+                text2: formData.get('text2'),
+                text3: formData.get('text3'),
+                number1: formData.get('number1'),
+                number2: formData.get('number2'),
+            };
+            await fetch('/add-to-queue', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            form.reset();
+            fetchQueueData(); 
+        });
+    
+        
+        fetchQueueData();
+        startPolling();
+    </script>
+</body>
+</html>
