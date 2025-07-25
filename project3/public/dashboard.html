@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .form-section, .table-section {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .form-section {
+            width: 40%;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .table-section {
+            width: 60%;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button i {
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        thead {
+            background: var(--primary);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 5px;
+        }
+
+        .edit-btn {
+            background-color: #ffc107;
+            color: var(--dark);
+        }
+
+        .delete-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .refresh-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .refresh-btn:hover {
+            transform: rotate(180deg);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .form-section, .table-section {
+                width: 100%;
+            }
+            
+            .form-section {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Animation for new table rows */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        tbody tr {
+            animation: fadeIn 0.3s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h2><i class="fas fa-plus-circle"></i> Add to Queue</h2>
+            <form id="queue-form">
+                <div class="form-group">
+                    <label for="text1">Name</label>
+                    <input type="text" id="text1" name="text1" placeholder="Enter full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="text2">Place</label>
+                    <input type="text" id="text2" name="text2" placeholder="Enter place of residence" required>
+                </div>
+                <div class="form-group">
+                    <label for="text3">Phone</label>
+                    <input type="text" id="text3" name="text3" placeholder="Enter phone number" required>
+                </div>
+                <div class="form-group">
+                    <label for="number1">Aadhar Number</label>
+                    <input type="number" id="number1" name="number1" placeholder="Enter Aadhar number" required>
+                </div>
+                <div class="form-group">
+                    <label for="number2">Age</label>
+                    <input type="number" id="number2" name="number2" placeholder="Enter age" required>
+                </div>
+                <button type="submit"><i class="fas fa-user-plus"></i> Add to Queue</button>
+            </form>
+        </div>
+        <div class="table-section">
+            <h2><i class="fas fa-list"></i> Current Queue 
+                <button class="refresh-btn" id="refresh-btn" title="Refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </h2>
+            <div class="table-wrapper">
+                <table id="queue-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Place</th>
+                            <th>Phone</th>
+                            <th>Aadhar No</th>
+                            <th>Age</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table content will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        Entry added successfully!
+    </div>
+
+    <script>
+        const form = document.getElementById('queue-form');
+        const tableBody = document.querySelector('#queue-table tbody');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const notification = document.getElementById('notification');
+
+        // Function to show notification
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Function to fetch and display queue data
+        async function fetchQueueData() {
+            try {
+                const response = await fetch('/queue-data');
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                
+                tableBody.innerHTML = data.map(row => `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>${row.text1}</td>
+                        <td>${row.text2}</td>
+                        <td>${row.text3}</td>
+                        <td>${row.number1}</td>
+                        <td>${row.number2}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error fetching queue data:', err);
+                showNotification('Error loading queue data');
+            }
+        }
+
+        // Manual refresh function
+        refreshBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            refreshBtn.querySelector('i').classList.add('fa-spin');
+            await fetchQueueData();
+            setTimeout(() => {
+                refreshBtn.querySelector('i').classList.remove('fa-spin');
+            }, 500);
+        });
+
+        // Auto-refresh queue data
+        function startPolling() {
+            setInterval(fetchQueueData, 5000); // Refresh every 5 seconds
+        }
+
+        // Form submission handler
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+            const formData = new FormData(form);
+            const data = {
+                text1: formData.get('text1'),
+                text2: formData.get('text2'),
+                text3: formData.get('text3'),
+                number1: formData.get('number1'),
+                number2: formData.get('number2'),
+            };
+
+            try {
+                const response = await fetch('/add-to-queue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                
+                if (response.ok) {
+                    showNotification('Entry added successfully!');
+                    form.reset();
+                    await fetchQueueData();
+                } else {
+                    const errorData = await response.json();
+                    showNotification(errorData.message || 'Error adding to queue');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Network error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Add to Queue';
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchQueueData();
+            startPolling();
+        });
+    </script>
+</body>
+</html>

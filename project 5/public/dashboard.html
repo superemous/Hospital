@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+  :root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --accent-color: #4895ef;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --success-color: #4cc9f0;
+    --danger-color: #f72585;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--dark-color);
+    background-color: #f5f7fa;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  h1 {
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  .user-info {
+    background: white;
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 30px;
+    transition: var(--transition);
+  }
+
+  .user-info:hover {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .user-info h2 {
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+  }
+
+  .user-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .detail-item {
+    margin-bottom: 10px;
+  }
+
+  .detail-item strong {
+    display: block;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    margin-bottom: 3px;
+  }
+
+  .medical-history {
+    background: white;
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+
+  .medical-history h2 {
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+
+  #recordsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  #recordsTable th {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  #recordsTable td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  #recordsTable tr:last-child td {
+    border-bottom: none;
+  }
+
+  #recordsTable tr:hover {
+    background-color: rgba(67, 97, 238, 0.05);
+  }
+
+  .prescription-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .prescription-list li {
+    padding: 5px 0;
+    position: relative;
+    padding-left: 15px;
+  }
+
+  .prescription-list li:before {
+    content: "•";
+    color: var(--accent-color);
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+  }
+
+  .no-records {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .loading-spinner {
+    border: 3px solid rgba(67, 97, 238, 0.2);
+    border-radius: 50%;
+    border-top: 3px solid var(--primary-color);
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .error-message {
+    background-color: #ffebee;
+    color: var(--danger-color);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .error-message:before {
+    content: "⚠";
+    margin-right: 10px;
+    font-size: 1.2rem;
+  }
+
+  .retry-btn {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-left: 15px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .retry-btn:hover {
+    background-color: #d91a63;
+  }
+
+  @media (max-width: 768px) {
+    .user-details {
+      grid-template-columns: 1fr;
+    }
+    
+    #recordsTable {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+
+  </style>
+</head>
+<body>
+    <div class="container">
+    <header>
+  <h1>Patient Dashboard</h1>
+</header>
+
+<section class="user-info">
+  <div class="user-details" id="userData">
+    <!-- User data will be inserted here -->
+  </div>
+</section>
+  <!-- <div class="hospital-records"> -->
+    <section class="medical-history">
+    <h2>Medical History</h2>
+    <table id="recordsTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Prescription</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Records will be inserted here -->
+      </tbody>
+    </table>
+    </section>
+</div>
+  <script>
+    // Get Aadhar from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const aadharNo = urlParams.get('aadhar');
+
+    // Fetch user data
+    fetch(`/user-data?aadhar=${aadharNo}`)
+      .then(response => response.json())
+      .then(user => {
+        document.getElementById('userData').innerHTML = `
+          <h2>${user.name}</h2>
+          <p><strong>Aadhar:</strong> ${user.aadhar_no}</p>
+          <p><strong>Place:</strong> ${user.place}</p>
+          <p><strong>Phone:</strong> ${user.phone}</p>
+          <p><strong>Age:</strong> ${user.age}</p>
+        `;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('userData').innerHTML = 
+          '<p>Error loading user data</p>';
+      });
+
+      // Add this to your existing dashboard script
+  function loadHospitalRecords(aadharNo) {
+    fetch(`/hospital-records?aadhar=${aadharNo}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+      })
+      .then(records => {
+        const tbody = document.querySelector('#recordsTable tbody');
+        if (records.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="2">No medical records found</td></tr>';
+          return;
+        }
+        tbody.innerHTML = records.map(record => `
+          <tr>
+            <td>${record.formatted_date}</td>
+            <td>
+              <ul>
+                ${record.prescription.map(item => `<li>${item}</li>`).join('')}
+              </ul>
+            </td>
+          </tr>
+        `).join('');
+      })
+      .catch(error => {
+        console.error('Error loading records:', error);
+        document.querySelector('#recordsTable tbody').innerHTML = `
+          <tr><td colspan="2">Error loading records: ${error.message}</td></tr>
+        `;
+      });
+  }
+  // Call this after loading user data
+  loadHospitalRecords(aadharNo);
+  </script>
+</body>
+</html>

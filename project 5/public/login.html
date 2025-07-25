@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aadhar Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-box {
+      width: 300px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Aadhar Login</h2>
+    <input type="text" id="aadharInput" placeholder="Enter Aadhar Number">
+    <button onclick="checkAadhar()">Login</button>
+  </div>
+
+  <script>
+    function checkAadhar() {
+      const aadharNo = document.getElementById('aadharInput').value;
+      
+      fetch('/check-aadhar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ aadhar_no: aadharNo })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.exists) {
+          window.location.href = data.redirect;
+        } else {
+          alert('Visit a hospital');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Login failed');
+      });
+    }
+  </script>
+</body>
+</html>

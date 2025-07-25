@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: var(--box-shadow);
+            z-index: 10;
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h2 i {
+            font-size: 1.2rem;
+        }
+
+        .expand-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .expand-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+            
+        .expand-btn:active {
+            transform: translateY(0);
+        }
+
+        .content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background-color: #f8fafc;
+        }
+
+        .sidebar {
+            width: 400px;
+            background: white;
+            border-left: 1px solid rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-out;
+            transform: translateX(100%);
+            overflow-y: auto;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 5;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar h3 {
+            padding: 20px;
+            margin: 0;
+            color: var(--primary);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar h3 i {
+            font-size: 1rem;
+        }
+
+        /* Current Patient Card */
+        #first-entry {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: var(--box-shadow);
+        }
+
+        #first-entry h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #first-entry h3 i {
+            font-size: 1rem;
+        }
+
+        #first-entry-data p {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+        }
+
+        #first-entry-data p:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        #first-entry-data strong {
+            color: var(--gray);
+            font-weight: 500;
+            display: inline-block;
+            width: 100px;
+        }
+
+        #history-sidebar {
+            z-index: 4;
+        }
+        /* Prescription Section */
+        .todo-list {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .todo-list h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .todo-list h3 i {
+            font-size: 1rem;
+        }
+
+        #prescription-column {
+            margin-bottom: 15px;
+        }
+
+        #prescription-column input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        #prescription-column input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .add-row-btn, .delete-row-btn, .submit-btn {
+            padding: 12px 20px;
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .add-row-btn {
+            background: var(--success);
+        }
+
+        .add-row-btn:hover {
+            background: #3aa8d8;
+            transform: translateY(-2px);
+        }
+
+        .delete-row-btn {
+            background: var(--danger);
+        }
+
+        .delete-row-btn:hover {
+            background: #e5177b;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn {
+            background: var(--primary);
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .add-row-btn:active, .delete-row-btn:active, .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        thead {
+            background: var(--primary);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification i {
+            font-size: 1.2rem;
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        tbody tr {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .add-row-btn, .delete-row-btn, .submit-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+    <h2><i class="fas fa-clinic-medical"></i> Medical Dashboard</h2>
+    <div style="display: flex; gap: 10px;">
+        <button class="expand-btn" onclick="toggleSidebar('queue')">
+            <i class="fas fa-list"></i> Queue
+        </button>
+        <button class="expand-btn" style="background: var(--secondary);" onclick="toggleSidebar('history')">
+            <i class="fas fa-history"></i> History
+        </button>
+    </div>
+</div>
+
+    <div class="content">
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- First entry from queue table -->
+            <div id="first-entry">
+                <h3><i class="fas fa-user-injured"></i> Current Patient</h3>
+                <div id="first-entry-data"></div>
+            </div>
+
+            <!-- History Sidebar -->
+<div class="sidebar" id="history-sidebar">
+    <h3><i class="fas fa-history"></i> Patient History</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Prescription</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+            <!-- To-Do List -->
+            <div class="todo-list">
+                <h3><i class="fas fa-prescription-bottle-alt"></i> Prescription</h3>
+                <div id="prescription-column"></div>
+                <div class="button-group">
+                    <button class="add-row-btn" onclick="addRow()">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                    <button class="delete-row-btn" onclick="deleteRow()">
+                        <i class="fas fa-minus"></i> Remove
+                    </button>
+                    <button class="submit-btn" onclick="submitPrescription()">
+                        <i class="fas fa-paper-plane"></i> Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar for Queue Table -->
+        <div class="sidebar" id="sidebar">
+            <h3><i class="fas fa-users"></i> Patient Queue</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Aadhar No</th>
+                        <th>Age</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span>Entry added successfully!</span>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const firstEntryData = document.getElementById('first-entry-data');
+        const prescriptionColumn = document.getElementById('prescription-column');
+        const notification = document.getElementById('notification');
+        let aadharNo = null; // Store the Aadhar No from the first entry
+
+        // Function to show notification
+        function showNotification(message, type = 'success') {
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            notification.className = `notification show ${type}`;
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Fetch and display the first entry from the queue table
+        async function fetchFirstEntry() {
+            try {
+                const response = await fetch('/first-entry');
+                if (!response.ok) throw new Error('Failed to fetch patient data');
+                
+                const data = await response.json();
+                if (data) {
+                    firstEntryData.innerHTML = `
+                        <p><strong>Name:</strong> ${data.text1}</p>
+                        <p><strong>Address:</strong> ${data.text2}</p>
+                        <p><strong>Phone:</strong> ${data.text3}</p>
+                        <p><strong>Aadhar No:</strong> ${data.number1}</p>
+                        <p><strong>Age:</strong> ${data.number2}</p>
+                    `;
+                    aadharNo = data.number1; // Store the Aadhar No
+                } else {
+                    firstEntryData.innerHTML = '<p>No patients in the queue.</p>';
+                    aadharNo = null;
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Failed to load patient data', 'error');
+            }
+        }
+
+        // Fetch and display prescription history for current patient
+async function fetchPatientHistory() {
+    if (!aadharNo) {
+        showNotification('No patient selected', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/hospital-data-by-aadhar?Aadhar_NO=${aadharNo}`);
+        if (!response.ok) throw new Error('Failed to load history');
+
+        const data = await response.json();
+        const tbody = document.querySelector('#history-sidebar tbody');
+        tbody.innerHTML = '';
+
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="2">No history found.</td></tr>';
+            return;
+        }
+
+       data.forEach(entry => {
+    // Properly parse the date
+    const rawDate = entry.Date; // e.g., "2025-04-05T10:30:00.000Z"
+    const date = new Date(rawDate).toLocaleDateString(); // Displays only the date (e.g., "4/5/2025")
+    const prescriptions = entry.prescription.join(', ');
+
+    const row = `
+        <tr>
+            <td>${date}</td>
+            <td>${prescriptions}</td>
+        </tr>
+    `;
+    tbody.innerHTML += row;
+});
+    } catch (err) {
+        console.error('Error:', err);
+        showNotification('Failed to load history', 'error');
+    }
+}
+        // Fetch and display the entire queue table
+        async function fetchQueueData() {
+            try {
+                const response = await fetch('/queue-data');
+                if (!response.ok) throw new Error('Failed to fetch queue data');
+                
+                const data = await response.json();
+                const tbody = sidebar.querySelector('tbody');
+                tbody.innerHTML = data.map(row => `
+                    <tr>
+                        <td>${row.text1}</td>
+                        <td>${row.text2}</td>
+                        <td>${row.text3}</td>
+                        <td>${row.number1}</td>
+                        <td>${row.number2}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Failed to load queue data', 'error');
+            }
+        }
+
+        // Toggle sidebar visibility
+        function toggleSidebar(type = 'queue') {
+    if (type === 'queue') {
+        sidebar.classList.toggle('open');
+        const btn = document.querySelectorAll('.expand-btn')[0];
+        btn.innerHTML = sidebar.classList.contains('open')
+            ? '<i class="fas fa-times"></i> Close'
+            : '<i class="fas fa-list"></i> Queue';
+    } else if (type === 'history') {
+        const historySidebar = document.getElementById('history-sidebar');
+        historySidebar.classList.toggle('open');
+        const btn = document.querySelectorAll('.expand-btn')[1];
+        btn.innerHTML = historySidebar.classList.contains('open')
+            ? '<i class="fas fa-times"></i> Close'
+            : '<i class="fas fa-history"></i> History';
+    }
+}
+
+        // Add a new row to the prescription column
+        function addRow() {
+            const div = document.createElement('div');
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.gap = '10px';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = 'Enter medication and dosage';
+            input.style.flex = '1';
+            
+            div.appendChild(input);
+            prescriptionColumn.appendChild(div);
+            
+            // Focus on the new input
+            setTimeout(() => input.focus(), 10);
+        }
+
+        // Delete the last row from the prescription column
+        function deleteRow() {
+            const rows = prescriptionColumn.querySelectorAll('div');
+            if (rows.length > 0) {
+                prescriptionColumn.removeChild(rows[rows.length - 1]);
+            } else {
+                showNotification('No prescriptions to remove', 'warning');
+            }
+        }
+
+        // Submit all prescriptions as an array
+        async function submitPrescription() {
+            const inputs = prescriptionColumn.querySelectorAll('input');
+            const prescriptions = Array.from(inputs).map(input => input.value.trim()).filter(val => val);
+
+            if (prescriptions.length === 0) {
+                showNotification('Please add at least one prescription', 'warning');
+                return;
+            }
+
+            if (!aadharNo) {
+                showNotification('No patient selected from queue', 'error');
+                return;
+            }
+
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                // Step 1: Submit prescription data
+                const response = await fetch('/add-hospital-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Aadhar_NO: aadharNo,
+                        Prescription: prescriptions,
+                    }),
+                });
+                
+                if (!response.ok) throw new Error('Failed to submit prescription');
+                
+                const result = await response.json();
+                console.log('Data submitted successfully:', result);
+
+                // Step 2: Delete the first row from the queue table
+                const deleteResponse = await fetch('/delete-first-entry', {
+                    method: 'DELETE',
+                });
+                
+                if (!deleteResponse.ok) throw new Error('Failed to update queue');
+                
+                const deletedRow = await deleteResponse.json();
+                console.log('Deleted row:', deletedRow);
+
+                // Step 3: Update the dashboard
+                await fetchFirstEntry();
+                await fetchQueueData();
+
+                // Clear the prescription inputs
+                prescriptionColumn.innerHTML = '';
+                showNotification('Prescription submitted successfully!');
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Failed to submit prescription', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
+            }
+        }
+
+        // Auto-refresh data every 10 seconds
+        function startPolling() {
+    setInterval(async () => {
+        await fetchFirstEntry();
+        await fetchQueueData();
+    }, 10000);
+
+    // Poll history only when needed
+    setInterval(async () => {
+        if (aadharNo && document.getElementById('history-sidebar').classList.contains('open')) {
+            await fetchPatientHistory();
+        }
+    }, 30000);
+}
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchFirstEntry();
+            fetchQueueData();
+            startPolling();
+            
+            // Add first prescription row by default
+            addRow();
+        });
+    </script>
+</body>
+</html>
